@@ -12,7 +12,7 @@ fn score_part2(line: &str) -> i32 {
         "C X" => 2,
         "C Y" => 6,
         "C Z" => 7,
-        l => panic!("Invalid input: {}", l)
+        l => panic!("Invalid input: {}", l),
     }
 }
 
@@ -28,15 +28,12 @@ fn score_part1(line: &str) -> i32 {
         "C X" => 7,
         "C Y" => 2,
         "C Z" => 6,
-        l => panic!("Invalid input: {}", l)
+        l => panic!("Invalid input: {}", l),
     }
 }
 
 fn total_score(file: &str, scoring: fn(&str) -> i32) -> i32 {
-    read_to_string(file).unwrap()
-        .lines()
-        .map(scoring)
-        .sum()
+    read_to_string(file).unwrap().lines().map(scoring).sum()
 }
 
 pub fn run(file: &str) {

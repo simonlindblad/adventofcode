@@ -1,5 +1,5 @@
-use std::fs::read_to_string;
 use std::collections::HashSet;
+use std::fs::read_to_string;
 
 use crate::BatchedIteratorExt;
 
@@ -13,26 +13,29 @@ fn get_point(c: char) -> u32 {
 }
 
 fn find_common_item(backpacks: &[&str]) -> char {
-    backpacks.iter()
+    backpacks
+        .iter()
         .map(|b| HashSet::<char>::from_iter(b.chars()))
-        .reduce(|accum, e| {
-            accum.intersection(&e).copied().collect()
-        })
+        .reduce(|accum, e| accum.intersection(&e).copied().collect())
         .expect("No backpack provided")
-        .into_iter().next().expect("No items in common")
+        .into_iter()
+        .next()
+        .expect("No items in common")
 }
 
 fn part1(file: &str) -> u32 {
-    read_to_string(file).unwrap()
+    read_to_string(file)
+        .unwrap()
         .lines()
-        .map(|l| l.split_at(l.len()/2))
+        .map(|l| l.split_at(l.len() / 2))
         .map(|b| find_common_item(&[b.0, b.1]))
         .map(get_point)
         .sum::<u32>()
 }
 
 fn part2(file: &str) -> u32 {
-    read_to_string(file).unwrap()
+    read_to_string(file)
+        .unwrap()
         .lines()
         .batch(3)
         .map(|b| find_common_item(&b))
