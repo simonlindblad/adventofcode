@@ -2,6 +2,7 @@ pub mod day1;
 pub mod day2;
 pub mod day3;
 pub mod day4;
+pub mod day5;
 
 /// An iterator extension that allows us to group elements of an iterator in batches. Each element
 /// out of the new iterator will be a vector of the batch size, or less if we can't fill up a batch

@@ -30,7 +30,10 @@ fn count_pairs(file: &str, predicate: fn(&(SectionRange, SectionRange)) -> bool)
         .lines()
         .map(|l| {
             let pair = l.split_once(',').unwrap();
-            (SectionRange::from_str(pair.0), SectionRange::from_str(pair.1))
+            (
+                SectionRange::from_str(pair.0),
+                SectionRange::from_str(pair.1),
+            )
         })
         .filter(predicate)
         .count()
