@@ -7,16 +7,26 @@ struct FileSystemNode {
     name: String,
     size: Option<u32>,
     children: Vec<NodeHandle>,
-    parent: Option<NodeHandle>
+    parent: Option<NodeHandle>,
 }
 
 impl FileSystemNode {
     fn new_dir(name: String, parent: Option<NodeHandle>) -> Self {
-        FileSystemNode { name, size: None, children: Vec::new(), parent }
+        FileSystemNode {
+            name,
+            size: None,
+            children: Vec::new(),
+            parent,
+        }
     }
-    
+
     fn new_file(name: String, size: u32, parent: NodeHandle) -> Self {
-        FileSystemNode { name, size: Some(size), children: Vec::new(), parent: Some(parent) }
+        FileSystemNode {
+            name,
+            size: Some(size),
+            children: Vec::new(),
+            parent: Some(parent),
+        }
     }
 
     fn is_dir(&self) -> bool {
@@ -39,7 +49,8 @@ impl FileSystem {
     }
 
     fn get_child(&self, handle: NodeHandle, name: &str) -> Option<NodeHandle> {
-        self.get(handle).children
+        self.get(handle)
+            .children
             .iter()
             .map(|handle| (*handle, self.get(*handle)))
             .find(|(_, node)| node.name == name)
@@ -58,7 +69,8 @@ impl FileSystem {
         if let Some(size) = node.size {
             size
         } else {
-            node.children.iter()
+            node.children
+                .iter()
                 .map(|handle| self.size_of(*handle))
                 .sum()
         }
@@ -73,7 +85,6 @@ fn parse_filesystem(file: &str) -> FileSystem {
     let mut fs = FileSystem::default();
     let root_handle = fs.add_node(FileSystemNode::new_dir("/".to_string(), None));
     let mut cwd = root_handle;
-
 
     for line in read_to_string(file).unwrap().lines() {
         if line == "$ cd /" {
@@ -93,7 +104,11 @@ fn parse_filesystem(file: &str) -> FileSystem {
             fs.get_mut(cwd).children.push(new_dir);
         } else if !line.starts_with("$ ls") {
             let (size, name) = line.split_once(' ').unwrap();
-            let new_file = fs.add_node(FileSystemNode::new_file(name.to_string(), size.parse().unwrap(), cwd));
+            let new_file = fs.add_node(FileSystemNode::new_file(
+                name.to_string(),
+                size.parse().unwrap(),
+                cwd,
+            ));
             fs.get_mut(cwd).children.push(new_file);
         }
     }

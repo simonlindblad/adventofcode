@@ -25,13 +25,18 @@ impl Ship {
     }
 
     fn move_crate(&mut self, crate_move: Move) {
-        let range = (self.stacks[crate_move.from_crate-1].len()-crate_move.count)..;
-        let crates: Vec<_> = self.stacks[crate_move.from_crate-1].drain(range).collect();
-        self.stacks[crate_move.to_crate-1].extend(crates);
+        let range = (self.stacks[crate_move.from_crate - 1].len() - crate_move.count)..;
+        let crates: Vec<_> = self.stacks[crate_move.from_crate - 1]
+            .drain(range)
+            .collect();
+        self.stacks[crate_move.to_crate - 1].extend(crates);
     }
 
     fn top_crates(&self) -> String {
-        self.stacks.iter().map(|s| s.back().unwrap_or(&' ')).collect()
+        self.stacks
+            .iter()
+            .map(|s| s.back().unwrap_or(&' '))
+            .collect()
     }
 }
 

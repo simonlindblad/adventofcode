@@ -2,7 +2,8 @@ use std::collections::HashSet;
 use std::fs::read_to_string;
 
 fn find_marker(line: &str, count: usize) -> usize {
-    let window_start = line.as_bytes()
+    let window_start = line
+        .as_bytes()
         .windows(count)
         .position(|w| HashSet::<&u8>::from_iter(w.iter()).len() == count)
         .expect("No marker found");
