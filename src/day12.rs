@@ -12,23 +12,12 @@ fn parse_grid(file: &str) -> Grid {
         .collect()
 }
 
-fn neighbors(position: Position, grid: &Grid) -> Vec<Position> {
-    let mut result = Vec::new();
-    for change in [(-1, 0), (1, 0), (0, 1), (0, -1)] {
-        if (position.0 == 0 && change.0 == -1) || (position.1 == 0 && change.1 == -1) {
-            continue;
-        }
-
-        let new = (
-            (position.0 as i32 + change.0) as usize,
-            (position.1 as i32 + change.1) as usize,
-        );
-        if new.0 < grid.len() && new.1 < grid[0].len() {
-            result.push(new);
-        }
-    }
-
-    result
+fn neighbors<'a>(pos: &'a Position, grid: &'a Grid) -> impl Iterator<Item = Position> + 'a {
+    [(-1, 0), (1, 0), (0, 1), (0, -1)]
+        .iter()
+        .filter(|c| (pos.0 != 0 || c.0 != -1) || (pos.1 != 0 || c.1 != -1))
+        .map(|c| ((pos.0 as i32 + c.0) as usize, (pos.1 as i32 + c.1) as usize))
+        .filter(|p| p.0 < grid.len() && p.1 < grid[0].len())
 }
 
 fn get_elevation(position: Position, grid: &Grid) -> u32 {
@@ -42,63 +31,58 @@ fn get_elevation(position: Position, grid: &Grid) -> u32 {
     }
 }
 
-fn bfs(position: Position, grid: &Grid) -> Option<usize> {
+fn bfs(position: Position, grid: &Grid, allow_a: bool) -> Vec<usize> {
     let mut queue = VecDeque::new();
-    let mut visited = HashSet::new();
+    let mut visited = vec![vec![false; grid[0].len()]; grid.len()];
 
     queue.push_back((position, 0));
 
+    let mut results = Vec::new();
     while let Some(front) = queue.pop_front() {
         let (position, dist) = front;
 
-        if grid[position.0][position.1] == 'E' {
-            return Some(dist);
+        let label = grid[position.0][position.1];
+        if label == 'S' || (label == 'a' && allow_a) {
+            results.push(dist);
         }
 
-        for nb in neighbors(position, grid) {
-            if !visited.contains(&nb)
-                && get_elevation(nb, grid) <= get_elevation(position, grid) + 1
+        for nb in neighbors(&position, grid) {
+            if !visited[nb.0][nb.1] && get_elevation(nb, grid) + 1 >= get_elevation(position, grid)
             {
                 queue.push_back((nb, dist + 1));
-                visited.insert(nb);
+                visited[nb.0][nb.1] = true;
             }
         }
     }
 
-    None
+    results
 }
 
-fn find_starts(grid: &Grid, allow_a: bool) -> Vec<Position> {
-    let mut starts = Vec::new();
+fn find_start(grid: &Grid) -> Position {
     for i in 0..grid.len() {
         for k in 0..grid[0].len() {
-            if grid[i][k] == 'S' || (allow_a && grid[i][k] == 'a') {
-                starts.push((i, k));
+            if grid[i][k] == 'E' {
+                return (i, k);
             }
         }
     }
-    starts
+
+    panic!("No goal found")
 }
 
 fn part1(file: &str) -> usize {
     let grid = parse_grid(file);
-    let start = find_starts(&grid, false);
-    bfs(start[0], &grid).unwrap()
+    let start = find_start(&grid);
+    bfs(start, &grid, false)[0]
 }
 
 fn part2(file: &str) -> usize {
     let grid = parse_grid(file);
-    let mut min = grid.len() * grid[0].len();
     // Ideally we'd store the calculations from the first
     // run and reuse those. However, this runs fast enough
     // to solve the problem.
-    for start in find_starts(&grid, true) {
-        match bfs(start, &grid) {
-            Some(n) if n < min => min = n,
-            _ => (),
-        }
-    }
-    min
+    let start = find_start(&grid);
+    bfs(start, &grid, true).into_iter().min().unwrap()
 }
 
 pub fn run(file: &str) {
