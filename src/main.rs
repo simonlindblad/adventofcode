@@ -2,5 +2,5 @@ use std::env;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    adventofcode2022::day12::run(&args[1]);
+    adventofcode2022::day13::run(&args[1]);
 }
