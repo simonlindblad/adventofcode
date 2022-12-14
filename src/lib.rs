@@ -3,6 +3,7 @@ pub mod day10;
 pub mod day11;
 pub mod day12;
 pub mod day13;
+pub mod day14;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -11,6 +12,22 @@ pub mod day6;
 pub mod day7;
 pub mod day8;
 pub mod day9;
+
+fn min<T: PartialOrd>(lhs: T, rhs: T) -> T {
+    if lhs < rhs {
+        lhs
+    } else {
+        rhs
+    }
+}
+
+fn max<T: PartialOrd>(lhs: T, rhs: T) -> T {
+    if lhs > rhs {
+        lhs
+    } else {
+        rhs
+    }
+}
 
 /// An iterator extension that allows us to group elements of an iterator in batches. Each element
 /// out of the new iterator will be a vector of the batch size, or less if we can't fill up a batch

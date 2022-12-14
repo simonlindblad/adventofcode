@@ -21,10 +21,10 @@ impl Ord for PacketPart {
 
                 is.len().cmp(&js.len())
             }
-            (PacketPart::List(is), PacketPart::Int(j)) => {
+            (PacketPart::List(_), PacketPart::Int(_)) => {
                 self.cmp(&PacketPart::List(vec![other.clone()]))
             }
-            (PacketPart::Int(i), PacketPart::List(js)) => {
+            (PacketPart::Int(_), PacketPart::List(_)) => {
                 let new = PacketPart::List(vec![self.clone()]);
                 new.cmp(other)
             }
@@ -43,10 +43,10 @@ impl PartialEq for PacketPart {
         match (&self, other) {
             (PacketPart::Int(i), PacketPart::Int(j)) => i == j,
             (PacketPart::List(i), PacketPart::List(j)) => i == j,
-            (PacketPart::Int(i), PacketPart::List(j)) => {
+            (PacketPart::Int(_), PacketPart::List(_)) => {
                 PacketPart::List(vec![self.clone()]).eq(other)
             }
-            (PacketPart::List(i), PacketPart::Int(j)) => {
+            (PacketPart::List(_), PacketPart::Int(_)) => {
                 self.eq(&PacketPart::List(vec![other.clone()]))
             }
         }

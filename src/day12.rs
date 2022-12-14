@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::VecDeque;
 use std::fs::read_to_string;
 
 type Grid = Vec<Vec<char>>;
