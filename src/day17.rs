@@ -1,4 +1,7 @@
+use std::collections::HashMap;
 use std::fs::read_to_string;
+
+use crate::max;
 
 #[derive(Debug)]
 enum Push {
@@ -47,6 +50,7 @@ impl Position {
 // 
 // ##
 // ##
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Rock {
     HorizontalLine,
     Plus,
@@ -56,6 +60,16 @@ enum Rock {
 }
 
 impl Rock {
+    fn need_width(&self) -> usize {
+        match self {
+            Rock::Plus => 1,
+            Rock::HorizontalLine => 4,
+            Rock::ReverseL => 3,
+            Rock::VerticalLine => 1,
+            Rock::Square => 2,
+        }
+    }
+
     fn start_position(&self, x: i64, y: i64) -> Vec<Position> {
         match self {
             Rock::HorizontalLine => vec![
@@ -113,6 +127,8 @@ impl Pushes {
         push
     }
 }
+
+type HistoryEntry = (Rock, usize, bool);
 
 #[derive(Default)]
 struct Chamber {
@@ -184,10 +200,34 @@ impl Chamber {
         }
     }
 
-    fn drop_rock(&mut self, rock: &Rock, pushes: &mut Pushes, debug: bool) {
+    fn drop_rock(&mut self, rock: &Rock, pushes: &mut Pushes, debug: bool, history: &mut Vec<HistoryEntry>, heights: &mut Vec<usize>) {
         if self.space.len() < self.tallest+10 {
             self.space.extend(vec![vec![false; 7]; 20]);
         }
+
+        let mut top_line: u32 = 0;
+        let mut max_range = 0;
+        let mut current = 0;
+        for i in 0..7 {
+            if self.tallest == 0 {
+                continue;
+            }
+
+            if !self.space[self.tallest-1][i] {
+                current += 1;
+                max_range = max(current, max_range)
+            } else {
+                current = 0;
+            }
+
+            if self.space[self.tallest-1][i] {
+                top_line |= 1 << i;
+            }
+        }
+        history.push((*rock, pushes.current, max_range < rock.need_width()));
+        heights.push(self.tallest);
+
+
         let mut rock_positions = rock.start_position(2, (self.tallest+3).try_into().unwrap());
         let mut should_push = true;
         let mut buffer = String::new();
@@ -237,13 +277,65 @@ fn parse_pushes(file: &str) -> Vec<Push> {
         .map(Push::parse)
         .collect()
 }
+
+fn part1(history: &[usize]) {
+    println!("Part 1: {}", history[2022]);
+}
+
+fn part2(history: &[HistoryEntry], heights: &[usize]) {
+    let mut previous = HashMap::new();
+    let mut cycle = (0, 0);
+    for (i, entry) in history.iter().enumerate().skip(150) {
+        if !entry.2 {
+            continue;
+        }
+
+        if let Some(prev) = previous.get(entry) {
+            cycle = (*prev, i);
+            break;
+            //println!("Cycle: {} -> {} ({})", cycle.0, cycle.1, cycle.1-cycle.0);
+            //println!("Height: {} -> {} ({})", heights[cycle.0], heights[cycle.1], heights[cycle.1]-heights[cycle.0]);
+            //previous.insert(*entry, i);
+        } else {
+            previous.insert(*entry, i);
+        }
+    }
+
+    if cycle == (0, 0) {
+        panic!("No cycles detected");
+    }
+
+    let height_diff = heights[cycle.1] - heights[cycle.0];
+    let cycle_len = cycle.1 - cycle.0;
+    let iters_left = 1_000_000_000_000 - cycle.0;
+    let cycles_left = iters_left/cycle_len;
+    let leftover = iters_left%cycle_len;
+    let leftover_height = heights[cycle.0+leftover] - heights[cycle.0];
+    println!("Cycle: {} -> {} ({})", cycle.0, cycle.1, cycle_len);
+    println!("Height difference: {} -> {} ({})", heights[cycle.0], heights[cycle.1], height_diff);
+    println!("Iters left: {}", iters_left);
+    println!("Cycles left: {}", cycles_left);
+    println!("Leftover len: {} height: {}", leftover, leftover_height);
+    println!("Height at 140: {}", heights[140]);
+    println!("Cycle test: {} = {}", heights[cycle.0 + cycle_len] + height_diff*2, heights[cycle.1+cycle_len*2]);
+
+    // how many cycles in 1000B?
+    let iters_left = 1_000_000_000_000 - cycle.0;
+    let height = heights[cycle.0] + (cycles_left * height_diff) + heights[cycle.0+(iters_left % cycle_len)] - heights[cycle.0];
+    println!("Height: {}", height);
+}
+
 pub fn run(file: &str) {
     let mut pushes = Pushes::new(parse_pushes(file));
     let mut chamber = Chamber::default();
     let rocks = vec![Rock::HorizontalLine, Rock::Plus, Rock::ReverseL, Rock::VerticalLine, Rock::Square];
-    for i in 0..2022 {
+    let mut history = Vec::new();
+    let mut heights = Vec::new();
+    for i in 0..10_000 {
         let rock = &rocks[i % 5];
-        chamber.drop_rock(rock, &mut pushes, false);
+        chamber.drop_rock(rock, &mut pushes, false, &mut history, &mut heights);
     }
-    println!("Tallest: {:?}", chamber.tallest);
+
+    part1(&heights);
+    part2(&history, &heights);
 }
