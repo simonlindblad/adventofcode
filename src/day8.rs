@@ -71,14 +71,14 @@ fn part2(file: &str) {
             let current = trees[row][col];
 
             let (left, left_count) = ((0..col).map(|c| (row, c)).rev(), col);
-            let (right, right_count) = ((col+1..columns).map(|c| (row, c)), columns-(col+1));
+            let (right, right_count) = ((col + 1..columns).map(|c| (row, c)), columns - (col + 1));
             let (top, top_count) = ((0..row).rev().map(|r| (r, col)), row);
-            let (bottom, bottom_count) = ((row+1..rows).map(|r| (r, col)), rows - (row+1));
+            let (bottom, bottom_count) = ((row + 1..rows).map(|r| (r, col)), rows - (row + 1));
 
-            let score = find_visible(&trees, current, left_count, left) *
-                find_visible(&trees, current, right_count, right) *
-                find_visible(&trees, current, top_count, top) *
-                find_visible(&trees, current, bottom_count, bottom);
+            let score = find_visible(&trees, current, left_count, left)
+                * find_visible(&trees, current, right_count, right)
+                * find_visible(&trees, current, top_count, top)
+                * find_visible(&trees, current, bottom_count, bottom);
             if score > max_score {
                 max_score = score;
             }

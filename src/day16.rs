@@ -111,6 +111,7 @@ fn dfs(
     local_max
 }
 
+/// This is nasty - but didn't have time to clean it up
 fn dfs2(
     tunnels: &TunnelSystem,
     you: NodeHandle,
@@ -230,6 +231,8 @@ pub fn run(file: &str) {
         "Part 1: {}",
         dfs(&tunnels, start, 30, &mut BitSet(0), &mut HashMap::new())
     );
+    // Did this with finding all possible combination of disjoint set at time 26...
+    // but this v1 solution also did the trick after 4 mins.
     println!(
         "Part 2: {}",
         dfs2(

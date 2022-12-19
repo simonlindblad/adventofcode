@@ -14,7 +14,7 @@ impl Push {
         match inp {
             '<' => Push::Left,
             '>' => Push::Right,
-            e => panic!("Unsupported move: {}", e)
+            e => panic!("Unsupported move: {}", e),
         }
     }
 }
@@ -34,20 +34,20 @@ impl Position {
 /// Possible rocks:
 ///
 ///####
-// 
+//
 // .#.
 // ###
 // .#.
-// 
+//
 // ..#
 // ..#
 // ###
-// 
+//
 // #
 // #
 // #
 // #
-// 
+//
 // ##
 // ##
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -74,35 +74,35 @@ impl Rock {
         match self {
             Rock::HorizontalLine => vec![
                 Position::from(x, y),
-                Position::from(x+1, y),
-                Position::from(x+2, y),
-                Position::from(x+3, y),
+                Position::from(x + 1, y),
+                Position::from(x + 2, y),
+                Position::from(x + 3, y),
             ],
             Rock::Plus => vec![
-                Position::from(x+1, y+2),
-                Position::from(x, y+1),
-                Position::from(x+1, y+1),
-                Position::from(x+2, y+1),
-                Position::from(x+1, y),
+                Position::from(x + 1, y + 2),
+                Position::from(x, y + 1),
+                Position::from(x + 1, y + 1),
+                Position::from(x + 2, y + 1),
+                Position::from(x + 1, y),
             ],
             Rock::ReverseL => vec![
-                Position::from(x+2, y+2),
-                Position::from(x+2, y+1),
+                Position::from(x + 2, y + 2),
+                Position::from(x + 2, y + 1),
                 Position::from(x, y),
-                Position::from(x+1, y),
-                Position::from(x+2, y),
+                Position::from(x + 1, y),
+                Position::from(x + 2, y),
             ],
             Rock::VerticalLine => vec![
-                Position::from(x, y+3),
-                Position::from(x, y+2),
-                Position::from(x, y+1),
+                Position::from(x, y + 3),
+                Position::from(x, y + 2),
+                Position::from(x, y + 1),
                 Position::from(x, y),
             ],
             Rock::Square => vec![
-                Position::from(x, y+1),
-                Position::from(x+1, y+1),
+                Position::from(x, y + 1),
+                Position::from(x + 1, y + 1),
                 Position::from(x, y),
-                Position::from(x+1, y),
+                Position::from(x + 1, y),
             ],
         }
     }
@@ -123,7 +123,7 @@ impl Pushes {
             self.current = 0;
         }
         let push = &self.pushes[self.current];
-        self.current+=1;
+        self.current += 1;
         push
     }
 }
@@ -152,7 +152,7 @@ impl Chamber {
 
     fn can_move(&self, pos: &Vec<Position>, x: i64, y: i64) -> bool {
         for p in pos {
-            let (newx, newy) = (p.x+x, p.y+y);
+            let (newx, newy) = (p.x + x, p.y + y);
             if !(0..7).contains(&newx) || newy < 0 || self.is_occupied(newx, newy) {
                 return false;
             }
@@ -190,7 +190,10 @@ impl Chamber {
             for x in 0..self.space[0].len() {
                 if self.space[y][x] {
                     print!("#");
-                } else if pos.iter().any(|p| p.x == x.try_into().unwrap() && p.y == y.try_into().unwrap()) {
+                } else if pos
+                    .iter()
+                    .any(|p| p.x == x.try_into().unwrap() && p.y == y.try_into().unwrap())
+                {
                     print!("@");
                 } else {
                     print!("*");
@@ -200,8 +203,15 @@ impl Chamber {
         }
     }
 
-    fn drop_rock(&mut self, rock: &Rock, pushes: &mut Pushes, debug: bool, history: &mut Vec<HistoryEntry>, heights: &mut Vec<usize>) {
-        if self.space.len() < self.tallest+10 {
+    fn drop_rock(
+        &mut self,
+        rock: &Rock,
+        pushes: &mut Pushes,
+        debug: bool,
+        history: &mut Vec<HistoryEntry>,
+        heights: &mut Vec<usize>,
+    ) {
+        if self.space.len() < self.tallest + 10 {
             self.space.extend(vec![vec![false; 7]; 20]);
         }
 
@@ -213,22 +223,21 @@ impl Chamber {
                 continue;
             }
 
-            if !self.space[self.tallest-1][i] {
+            if !self.space[self.tallest - 1][i] {
                 current += 1;
                 max_range = max(current, max_range)
             } else {
                 current = 0;
             }
 
-            if self.space[self.tallest-1][i] {
+            if self.space[self.tallest - 1][i] {
                 top_line |= 1 << i;
             }
         }
         history.push((*rock, pushes.current, max_range < rock.need_width()));
         heights.push(self.tallest);
 
-
-        let mut rock_positions = rock.start_position(2, (self.tallest+3).try_into().unwrap());
+        let mut rock_positions = rock.start_position(2, (self.tallest + 3).try_into().unwrap());
         let mut should_push = true;
         let mut buffer = String::new();
         let stdin = std::io::stdin(); // We get `Stdin` here
@@ -256,9 +265,9 @@ impl Chamber {
 
                 // Find the tallest.. will be in the current tallest +4
                 for x in 0..7 {
-                    for y in (self.tallest..self.tallest+4).rev() {
+                    for y in (self.tallest..self.tallest + 4).rev() {
                         if self.space[y][x] {
-                            self.tallest = y+1;
+                            self.tallest = y + 1;
                             break;
                         }
                     }
@@ -271,7 +280,8 @@ impl Chamber {
 }
 
 fn parse_pushes(file: &str) -> Vec<Push> {
-    read_to_string(file).unwrap()
+    read_to_string(file)
+        .unwrap()
         .chars()
         .filter(|c| !c.is_whitespace())
         .map(Push::parse)
@@ -308,27 +318,43 @@ fn part2(history: &[HistoryEntry], heights: &[usize]) {
     let height_diff = heights[cycle.1] - heights[cycle.0];
     let cycle_len = cycle.1 - cycle.0;
     let iters_left = 1_000_000_000_000 - cycle.0;
-    let cycles_left = iters_left/cycle_len;
-    let leftover = iters_left%cycle_len;
-    let leftover_height = heights[cycle.0+leftover] - heights[cycle.0];
+    let cycles_left = iters_left / cycle_len;
+    let leftover = iters_left % cycle_len;
+    let leftover_height = heights[cycle.0 + leftover] - heights[cycle.0];
     println!("Cycle: {} -> {} ({})", cycle.0, cycle.1, cycle_len);
-    println!("Height difference: {} -> {} ({})", heights[cycle.0], heights[cycle.1], height_diff);
+    println!(
+        "Height difference: {} -> {} ({})",
+        heights[cycle.0], heights[cycle.1], height_diff
+    );
     println!("Iters left: {}", iters_left);
     println!("Cycles left: {}", cycles_left);
     println!("Leftover len: {} height: {}", leftover, leftover_height);
     println!("Height at 140: {}", heights[140]);
-    println!("Cycle test: {} = {}", heights[cycle.0 + cycle_len] + height_diff*2, heights[cycle.1+cycle_len*2]);
+    println!(
+        "Cycle test: {} = {}",
+        heights[cycle.0 + cycle_len] + height_diff * 2,
+        heights[cycle.1 + cycle_len * 2]
+    );
 
     // how many cycles in 1000B?
     let iters_left = 1_000_000_000_000 - cycle.0;
-    let height = heights[cycle.0] + (cycles_left * height_diff) + heights[cycle.0+(iters_left % cycle_len)] - heights[cycle.0];
+    let height = heights[cycle.0]
+        + (cycles_left * height_diff)
+        + heights[cycle.0 + (iters_left % cycle_len)]
+        - heights[cycle.0];
     println!("Height: {}", height);
 }
 
 pub fn run(file: &str) {
     let mut pushes = Pushes::new(parse_pushes(file));
     let mut chamber = Chamber::default();
-    let rocks = vec![Rock::HorizontalLine, Rock::Plus, Rock::ReverseL, Rock::VerticalLine, Rock::Square];
+    let rocks = vec![
+        Rock::HorizontalLine,
+        Rock::Plus,
+        Rock::ReverseL,
+        Rock::VerticalLine,
+        Rock::Square,
+    ];
     let mut history = Vec::new();
     let mut heights = Vec::new();
     for i in 0..10_000 {
