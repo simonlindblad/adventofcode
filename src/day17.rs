@@ -162,7 +162,6 @@ impl Chamber {
     }
 
     fn can_drop(&self, pos: &Vec<Position>) -> bool {
-        let can_drop = self.can_move(pos, 0, -1);
         self.can_move(pos, 0, -1)
     }
 
@@ -215,7 +214,6 @@ impl Chamber {
             self.space.extend(vec![vec![false; 7]; 20]);
         }
 
-        let mut top_line: u32 = 0;
         let mut max_range = 0;
         let mut current = 0;
         for i in 0..7 {
@@ -228,10 +226,6 @@ impl Chamber {
                 max_range = max(current, max_range)
             } else {
                 current = 0;
-            }
-
-            if self.space[self.tallest - 1][i] {
-                top_line |= 1 << i;
             }
         }
         history.push((*rock, pushes.current, max_range < rock.need_width()));

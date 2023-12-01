@@ -216,7 +216,7 @@ fn parse_input(file: &str) -> TunnelSystem {
             .map(|c| tunnels.get_handle_or_insert(c, Valve::with_name(c.to_string())))
             .collect::<Vec<_>>();
 
-        let mut valve = tunnels.get_mut(handle);
+        let valve = tunnels.get_mut(handle);
         valve.flow = cap[2].parse::<i32>().unwrap();
         valve.children = children;
     }
