@@ -4,43 +4,41 @@ use aoc2023::{map, read_input_file};
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref WORDS_TO_DIGITS: HashMap<String, char> = map! {
-        String::from("one") => '1',
-        String::from("two") => '2',
-        String::from("three") => '3',
-        String::from("four") => '4',
-        String::from("five") => '5',
-        String::from("six") => '6',
-        String::from("seven") => '7',
-        String::from("eight") => '8',
-        String::from("nine") => '9'
+    static ref WORDS: HashMap<&'static str, i32> = map! {
+        "one" => 1,
+        "1" => 1,
+        "two" => 2,
+        "2" => 2,
+        "three" => 3,
+        "3" => 3,
+        "four" => 4,
+        "4" => 4,
+        "five" => 5,
+        "5" => 5,
+        "six" => 6,
+        "6" => 6,
+        "seven" => 7,
+        "7" => 7,
+        "eight" => 8,
+        "8" => 8,
+        "nine" => 9,
+        "9" => 9
     };
 }
 
 fn extract_number(line: String) -> i32 {
-    let mut first = line.find(|c: char| c.is_ascii_digit());
-    let mut first_digit = line.chars().nth(first.unwrap_or_default()).unwrap_or('0');
-    for digit in WORDS_TO_DIGITS.keys().clone() {
-        if let Some(position) = line.find(digit) {
-            if first.is_none() || position < first.unwrap() {
-                first = Some(position);
-                first_digit = *WORDS_TO_DIGITS.get(digit).unwrap();
-            }
-        }
-    }
+    let first = WORDS
+        .keys()
+        .min_by_key(|word| line.find(**word).unwrap_or(usize::MAX))
+        .map(|word| WORDS[word]);
 
-    let mut last = line.rfind(|c: char| c.is_ascii_digit());
-    let mut last_digit = line.chars().nth(last.unwrap_or_default()).unwrap_or('0');
-    for digit in WORDS_TO_DIGITS.keys().clone() {
-        if let Some(position) = line.rfind(digit) {
-            if last.is_none() || position > last.unwrap() {
-                last = Some(position);
-                last_digit = *WORDS_TO_DIGITS.get(digit).unwrap();
-            }
-        }
-    }
+    // Need to map to i32 to get a negative "wrong" base value
+    let last = WORDS
+        .keys()
+        .max_by_key(|word| line.rfind(**word).map(|u| u as i32).unwrap_or(i32::MIN))
+        .map(|word| WORDS[word]);
 
-    format!("{}{}", first_digit, last_digit)
+    format!("{}{}", first.unwrap(), last.unwrap())
         .parse::<i32>()
         .unwrap()
 }
