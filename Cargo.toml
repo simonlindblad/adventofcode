@@ -1,10 +1,8 @@
-[package]
-name = "adventofcode"
-version = "0.1.0"
-edition = "2021"
+[workspace]
 
-[dependencies]
-regex = "1.7.0"
-uint = "0.9.5"
+members = [
+    "aoc2022",
+    "aoc2023",
+]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+resolver = "2"

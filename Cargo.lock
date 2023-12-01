@@ -3,14 +3,6 @@
 version = 3
 
 [[package]]
-name = "adventofcode"
-version = "0.1.0"
-dependencies = [
- "regex",
- "uint",
-]
-
-[[package]]
 name = "aho-corasick"
 version = "0.7.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -18,6 +10,18 @@ checksum = "cc936419f96fa211c1b9166887b38e5e40b19958e5b895be7c1f93adec7071ac"
 dependencies = [
  "memchr",
 ]
+
+[[package]]
+name = "aoc2022"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "uint",
+]
+
+[[package]]
+name = "aoc2023"
+version = "0.1.0"
 
 [[package]]
 name = "byteorder"
