@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use aoc2023::read_input_file;
 
 #[derive(Debug, Clone)]
@@ -9,20 +11,17 @@ struct CubeSet {
 
 impl CubeSet {
     fn parse(set: &str) -> CubeSet {
-        let mut blue = 0;
-        let mut green = 0;
-        let mut red = 0;
+        let components = set
+            .split(", ")
+            .map(|cube| cube.split_once(' ').unwrap())
+            .map(|(count, color)| (color, count.parse::<usize>().unwrap()))
+            .collect::<HashMap<_, _>>();
 
-        for (count, color) in set.split(", ").map(|cube| cube.split_once(' ').unwrap()) {
-            match color {
-                "blue" => blue = count.parse::<usize>().unwrap(),
-                "green" => green = count.parse::<usize>().unwrap(),
-                "red" => red = count.parse::<usize>().unwrap(),
-                _ => panic!("Unknown color"),
-            }
+        CubeSet {
+            blue: *components.get("blue").unwrap_or(&0),
+            green: *components.get("green").unwrap_or(&0),
+            red: *components.get("red").unwrap_or(&0),
         }
-
-        CubeSet { blue, green, red }
     }
 
     fn can_play(&self, set: &CubeSet) -> bool {
