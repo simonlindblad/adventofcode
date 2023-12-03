@@ -10,8 +10,9 @@ struct CubeSet {
 }
 
 impl CubeSet {
-    fn parse(set: &str) -> CubeSet {
+    fn parse<S: AsRef<str>>(set: S) -> CubeSet {
         let components = set
+            .as_ref()
             .split(", ")
             .map(|cube| cube.split_once(' ').unwrap())
             .map(|(count, color)| (color, count.parse::<usize>().unwrap()))
@@ -72,7 +73,7 @@ impl Game {
         self.hands.iter().all(|hand| hand.can_play(available))
     }
 
-    fn get_power(self) -> usize {
+    fn power(self) -> usize {
         self.hands
             .into_iter()
             .reduce(|a, b| a.get_max(&b))
@@ -85,7 +86,7 @@ fn part2() {
     let score = read_input_file()
         .iter()
         .map(Game::parse)
-        .map(|game| game.get_power())
+        .map(|game| game.power())
         .sum::<usize>();
 
     println!("Score: {}", score);
