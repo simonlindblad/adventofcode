@@ -1,5 +1,5 @@
 use aoc2023::read_input_content;
-use std::collections::HashMap;
+use std::collections::VecDeque;
 
 #[derive(Debug)]
 struct Range {
@@ -8,7 +8,11 @@ struct Range {
 }
 
 impl Range {
-    fn new(start: u64, len: u64) -> Self {
+    fn new(start: u64, end: u64) -> Self {
+        Self { start, end }
+    }
+
+    fn from_length(start: u64, len: u64) -> Self {
         Self {
             start,
             end: start + len - 1,
@@ -17,6 +21,22 @@ impl Range {
 
     fn contains(&self, value: u64) -> bool {
         self.start <= value && value <= self.end
+    }
+
+    fn intersects(&self, other: &Self) -> bool {
+        self.contains(other.start)
+            || self.contains(other.end)
+            || (self.start > other.start && self.end < other.end)
+    }
+
+    fn intersection(&self, other: &Self) -> Option<Range> {
+        if self.intersects(other) {
+            let start = self.start.max(other.start);
+            let end = self.end.min(other.end);
+            Some(Range::new(start, end))
+        } else {
+            None
+        }
     }
 }
 
@@ -34,8 +54,8 @@ impl RangeMapping {
             .map(|s| s.trim().parse::<u64>().unwrap())
             .collect::<Vec<_>>();
         Self {
-            destination: Range::new(numbers[0], numbers[2]),
-            source: Range::new(numbers[1], numbers[2]),
+            destination: Range::from_length(numbers[0], numbers[2]),
+            source: Range::from_length(numbers[1], numbers[2]),
         }
     }
 
@@ -51,15 +71,62 @@ impl RangeMapping {
 
 #[derive(Debug)]
 struct Map {
-    source: String,
-    target: String,
-    mappings: Vec<RangeMapping>,
+    mappings: VecDeque<RangeMapping>,
+}
+
+impl Map {
+    fn new(mut mappings: Vec<RangeMapping>) -> Self {
+        mappings.sort_by(|a, b| a.source.start.cmp(&b.source.start));
+        Self {
+            mappings: VecDeque::from(mappings),
+        }
+    }
+
+    fn merge_intervals(&self, mut intervals: VecDeque<Range>) -> VecDeque<Range> {
+        let mut result = VecDeque::new();
+        while let Some(interval) = intervals.pop_front() {
+            if interval.start > interval.end {
+                continue;
+            }
+
+            let intersecting = self
+                .mappings
+                .iter()
+                .filter(|m| interval.intersects(&m.source))
+                .collect::<Vec<_>>();
+
+            if intersecting.is_empty() {
+                result.push_back(interval);
+            } else {
+                for mapping in intersecting {
+                    let intersection = interval.intersection(&mapping.source).unwrap();
+                    if interval.start < intersection.start {
+                        intervals.push_back(Range::new(interval.start, intersection.start - 1));
+                    }
+
+                    if interval.end > intersection.end {
+                        intervals.push_back(Range::new(intersection.end + 1, interval.end));
+                    }
+
+                    let offset = intersection.start - mapping.source.start;
+                    let length = intersection.end - intersection.start + 1;
+
+                    result.push_back(Range::from_length(
+                        mapping.destination.start + offset,
+                        length,
+                    ));
+                }
+            }
+        }
+
+        result
+    }
 }
 
 #[derive(Debug)]
 struct Almanac {
     seeds: Vec<u64>,
-    maps: HashMap<String, Map>,
+    maps: Vec<Map>,
 }
 
 impl Almanac {
@@ -80,24 +147,12 @@ impl Almanac {
             .iter()
             .skip(1)
             .map(|component| {
-                let mut lines = component.lines();
-                let names: Vec<&str> = lines
-                    .next()
-                    .unwrap()
-                    .split(' ')
-                    .nth(0)
-                    .unwrap()
-                    .split("-to-")
-                    .collect();
-                let (source, target) = (names[0], names[1]);
-
-                let ranges = lines.map(RangeMapping::parse).collect::<Vec<_>>();
-                let map = Map {
-                    source: source.to_string(),
-                    target: target.to_string(),
-                    mappings: ranges,
-                };
-                (map.source.clone(), map)
+                let ranges = component
+                    .lines()
+                    .skip(1)
+                    .map(RangeMapping::parse)
+                    .collect::<Vec<_>>();
+                Map::new(ranges)
             })
             .collect();
 
@@ -106,17 +161,13 @@ impl Almanac {
 
     fn get_location(&self, seed: u64) -> u64 {
         let mut value = seed;
-        let mut current = "seed";
-
-        while current != "location" {
-            let map = self.maps.get(current).unwrap();
+        for map in self.maps.iter() {
             value = map
                 .mappings
                 .iter()
                 .flat_map(|mapping| mapping.map(value))
                 .next()
                 .unwrap_or(value);
-            current = &map.target;
         }
         value
     }
@@ -134,29 +185,28 @@ fn part1() {
     println!("Part 1: {}", result);
 }
 
-fn part2() {
-    let almanac = Almanac::parse(read_input_content());
-
-    let result = almanac
+fn part22() {
+    let alma = Almanac::parse(read_input_content());
+    let mut intervals = alma
         .seeds
         .chunks_exact(2)
-        .flat_map(|chunk| (chunk[0]..=chunk[0] + chunk[1]).collect::<Vec<_>>())
-        .map(|s| almanac.get_location(s))
+        .map(|chunk| Range::from_length(chunk[0], chunk[1]))
+        .collect::<Vec<_>>();
+
+    intervals.sort_by(|a, b| a.start.cmp(&b.start));
+    let result = alma
+        .maps
+        .iter()
+        .fold(VecDeque::from(intervals), |a, b| b.merge_intervals(a))
+        .iter()
+        .map(|i| i.start)
         .min()
         .unwrap();
-    println!("Part 2: {}", result);
+
+    println!("Part 2: {:?}", result);
 }
 
 fn main() {
     part1();
-    part2();
-    //let almanac = Almanac::parse(read_input_content());
-
-    //for map in almanac.maps.iter() {
-    //    println!("Name: {}", map.0);
-    //    for range in map.1.iter() {
-    //        println!("  {:?}", range);
-    //    }
-    //    println!();
-    //}
+    part22();
 }
