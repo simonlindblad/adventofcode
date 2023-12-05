@@ -5,9 +5,14 @@ fn read_file<P: AsRef<Path>>(path: P) -> Vec<String> {
     contents.lines().map(|s| s.to_string()).collect()
 }
 
-pub fn read_input_file() -> Vec<String> {
+pub fn read_input_lines() -> Vec<String> {
     let args: Vec<String> = env::args().collect();
     read_file(&args[1])
+}
+
+pub fn read_input_content() -> String {
+    let args: Vec<String> = env::args().collect();
+    std::fs::read_to_string(&args[1]).expect("Something went wrong reading the file")
 }
 
 /// Macro to construct a HashMap
