@@ -15,6 +15,14 @@ pub fn read_input_content() -> String {
     std::fs::read_to_string(&args[1]).expect("Something went wrong reading the file")
 }
 
+pub fn solve_quadratic(a: f64, b: f64, c: f64) -> (f64, f64) {
+    let sqrt_d = (b * b - 4.0 * a * c).sqrt();
+    let denom = 2.0 * a;
+    let x1 = (-b - sqrt_d) / denom;
+    let x2 = (-b + sqrt_d) / denom;
+    (x1, x2)
+}
+
 /// Macro to construct a HashMap
 #[macro_export]
 macro_rules! map {

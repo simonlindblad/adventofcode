@@ -1,4 +1,4 @@
-use aoc2023::read_input_lines;
+use aoc2023::{read_input_lines, solve_quadratic};
 
 #[derive(Debug)]
 struct Race {
@@ -41,28 +41,18 @@ impl Paper {
     }
 }
 
-fn number_of_ways_to_win(time: u64, distance: u64, current_speed: u64) -> u64 {
-    if time == 0 {
-        0
-    } else if distance == 0 {
-        time
-    } else if current_speed * time > distance {
-        1 + number_of_ways_to_win(time - 1, distance, current_speed + 1)
-    } else {
-        number_of_ways_to_win(time - 1, distance, current_speed + 1)
-    }
+fn number_of_ways(time: f64, distance: f64) -> u64 {
+    let (lower, upper) = solve_quadratic(1.0, -time, distance);
+    (upper - 1.0).ceil() as u64 - lower.floor() as u64
 }
 
-fn part1() {
+fn main() {
     let paper = Paper::parse(read_input_lines());
     let res = paper
         .races
         .iter()
-        .map(|r| number_of_ways_to_win(r.time, r.distance, 0))
+        .map(|r| number_of_ways(r.time as f64, r.distance as f64))
         .product::<u64>();
-    println!("Part 1: {}", res);
-}
 
-fn main() {
-    part1();
+    println!("Result: {}", res);
 }
