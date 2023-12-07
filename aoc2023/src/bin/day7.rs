@@ -2,9 +2,15 @@ use aoc2023::read_input_lines;
 
 use std::{cmp::Ordering, collections::HashMap};
 
-fn card_from_char(c: char) -> u8 {
+fn card_from_char(c: char, with_joker: bool) -> u8 {
     match c {
-        'J' => 11,
+        'J' => {
+            if with_joker {
+                1
+            } else {
+                11
+            }
+        }
         'Q' => 12,
         'K' => 13,
         'A' => 14,
@@ -20,20 +26,37 @@ struct Hand {
 }
 
 impl Hand {
-    fn parse<S: AsRef<str>>(input: S) -> Self {
+    fn parse<S: AsRef<str>>(input: S, with_joker: bool) -> Self {
         let cards = input
             .as_ref()
             .chars()
-            .map(card_from_char)
+            .map(|c| card_from_char(c, with_joker))
             .collect::<Vec<_>>();
 
-        let cards_by_value =
+        let mut cards_by_value =
             cards
                 .iter()
                 .fold(HashMap::new(), |mut acc: HashMap<u8, u32>, card| {
                     *acc.entry(*card).or_insert(0) += 1;
                     acc
                 });
+
+        // If we have the joker, upgrade the most common card
+        if with_joker {
+            if let Some(joker_count) = cards_by_value.get(&1) {
+                let mut max_count = 0;
+                let mut max_card = 0;
+                for (&card, &count) in cards_by_value.iter() {
+                    if card != 1 && count > max_count {
+                        max_count = count;
+                        max_card = card;
+                    }
+                }
+
+                *cards_by_value.entry(max_card).or_insert(0) += *joker_count;
+                cards_by_value.remove(&1);
+            }
+        }
 
         let type_score = match cards_by_value.len() {
             1 => 7, // Five of a kind
@@ -91,24 +114,27 @@ struct Bet {
 }
 
 impl Bet {
-    fn parse<S: AsRef<str>>(input: S) -> Self {
+    fn parse<S: AsRef<str>>(input: S, with_joker: bool) -> Self {
         let mut parts = input.as_ref().split(' ');
-        let hand = Hand::parse(parts.next().unwrap().trim());
+        let hand = Hand::parse(parts.next().unwrap().trim(), with_joker);
         let bet = parts.next().unwrap().trim().parse::<usize>().unwrap();
         Self { bet, hand }
     }
 }
 
-fn main() {
+fn find_score(with_joker: bool) -> usize {
     let mut bets = read_input_lines()
         .iter()
-        .map(Bet::parse)
+        .map(|l| Bet::parse(l, with_joker))
         .collect::<Vec<_>>();
     bets.sort_by(|a, b| a.hand.cmp(&b.hand));
-    let res = bets
-        .iter()
+    bets.iter()
         .enumerate()
         .map(|(i, bet)| bet.bet * (i + 1))
-        .sum::<usize>();
-    println!("{}", res);
+        .sum::<usize>()
+}
+
+fn main() {
+    println!("Part 1: {}", find_score(false));
+    println!("Part 2: {}", find_score(true));
 }
