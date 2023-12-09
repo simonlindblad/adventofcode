@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use aoc2023::{map, read_input_file};
+use aoc2023::{map, read_input_lines};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -44,7 +44,7 @@ fn extract_number(line: String) -> i32 {
 }
 
 fn main() {
-    let total = read_input_file()
+    let total = read_input_lines()
         .into_iter()
         .map(extract_number)
         .sum::<i32>();

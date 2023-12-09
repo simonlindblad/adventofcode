@@ -1,4 +1,4 @@
-use aoc2023::read_input_file;
+use aoc2023::read_input_lines;
 
 use std::collections::HashSet;
 
@@ -43,7 +43,7 @@ impl Card {
 }
 
 fn part1() {
-    let total = read_input_file()
+    let total = read_input_lines()
         .iter()
         .map(Card::parse)
         .map(|c| c.win_count())
@@ -54,7 +54,7 @@ fn part1() {
 }
 
 fn part2() {
-    let cards = read_input_file()
+    let cards = read_input_lines()
         .iter()
         .map(Card::parse)
         .collect::<Vec<_>>();

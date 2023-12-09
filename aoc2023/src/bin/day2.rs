@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use aoc2023::read_input_file;
+use aoc2023::read_input_lines;
 
 #[derive(Debug, Clone)]
 struct CubeSet {
@@ -83,7 +83,7 @@ impl Game {
 }
 
 fn part2() {
-    let score = read_input_file()
+    let score = read_input_lines()
         .iter()
         .map(Game::parse)
         .map(|game| game.power())
@@ -99,7 +99,7 @@ fn part1() {
         red: 12,
     };
 
-    let score = read_input_file()
+    let score = read_input_lines()
         .iter()
         .map(Game::parse)
         .filter(|game| game.can_play(&available))

@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use aoc2023::read_input_file;
+use aoc2023::read_input_lines;
 
 #[derive(Debug)]
 struct Grid {
@@ -94,7 +94,7 @@ impl Grid {
 }
 
 fn part1() {
-    let grid = Grid::parse(&read_input_file());
+    let grid = Grid::parse(&read_input_lines());
     let number = grid
         .find_numbers()
         .into_iter()
@@ -113,7 +113,7 @@ fn part1() {
 }
 
 fn part2() {
-    let grid = Grid::parse(&read_input_file());
+    let grid = Grid::parse(&read_input_lines());
 
     let res = grid
         .find_numbers()

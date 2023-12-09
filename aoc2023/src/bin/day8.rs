@@ -3,24 +3,10 @@ use std::collections::HashMap;
 use aoc2023::{lcm, read_input_lines};
 
 #[derive(Debug)]
-struct Node {
-    left: String,
-    right: String,
-}
-
-impl Node {
-    fn new<S: Into<String>>(left: S, right: S) -> Self {
-        Self {
-            left: left.into(),
-            right: right.into(),
-        }
-    }
-}
-
-#[derive(Debug)]
 struct Document {
     moves: Vec<char>,
-    nodes: HashMap<String, Node>,
+    // Node => left, right
+    nodes: HashMap<String, (String, String)>,
 }
 
 impl Document {
@@ -41,7 +27,7 @@ impl Document {
                     .unwrap()
                     .split_once(", ")
                     .unwrap();
-                (key, Node::new(left, right))
+                (key, (left.to_string(), right.to_string()))
             })
             .collect::<HashMap<_, _>>();
         Document { moves, nodes }
@@ -50,8 +36,8 @@ impl Document {
     fn next_node(&self, current: &str, number_of_moves: u64) -> &str {
         let idx = number_of_moves % (self.moves.len() as u64);
         match self.moves[idx as usize] {
-            'L' => &self.nodes[current].left,
-            'R' => &self.nodes[current].right,
+            'L' => &self.nodes[current].0,
+            'R' => &self.nodes[current].1,
             _ => panic!("Invalid move"),
         }
     }
@@ -85,6 +71,6 @@ pub fn part2() {
 }
 
 fn main() {
-    //    part1();
+    part1();
     part2();
 }
