@@ -38,6 +38,44 @@ pub fn lcm(a: u64, b: u64) -> u64 {
     a * b / gcd(a, b)
 }
 
+pub struct Grid {
+    grid: Vec<Vec<char>>,
+}
+
+impl Grid {
+    pub fn from_input() -> Self {
+        let grid = read_input_lines()
+            .iter()
+            .map(|l| l.chars().collect::<Vec<_>>())
+            .collect::<Vec<_>>();
+        Self { grid }
+    }
+
+    pub fn is_valid(&self, x: i64, y: i64) -> bool {
+        x < self.grid[0].len() as i64 && y < self.grid.len() as i64 && x >= 0 && y >= 0
+    }
+
+    pub fn get(&self, x: i64, y: i64) -> char {
+        self.grid[y as usize][x as usize]
+    }
+
+    pub fn update(&mut self, x: i64, y: i64, c: char) {
+        self.grid[y as usize][x as usize] = c;
+    }
+
+    pub fn find(&self, c: char) -> Option<(usize, usize)> {
+        for (y, row) in self.grid.iter().enumerate() {
+            for (x, &c2) in row.iter().enumerate() {
+                if c == c2 {
+                    return Some((x, y));
+                }
+            }
+        }
+
+        None
+    }
+}
+
 /// Macro to construct a HashMap
 #[macro_export]
 macro_rules! map {
