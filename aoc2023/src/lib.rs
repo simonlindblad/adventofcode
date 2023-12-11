@@ -1,4 +1,4 @@
-use std::{env, path::Path};
+use std::{collections::VecDeque, env, path::Path};
 
 fn read_file<P: AsRef<Path>>(path: P) -> Vec<String> {
     let contents = std::fs::read_to_string(path).expect("Something went wrong reading the file");
@@ -38,6 +38,7 @@ pub fn lcm(a: u64, b: u64) -> u64 {
     a * b / gcd(a, b)
 }
 
+#[derive(Debug)]
 pub struct Grid {
     grid: Vec<Vec<char>>,
 }
@@ -49,6 +50,14 @@ impl Grid {
             .map(|l| l.chars().collect::<Vec<_>>())
             .collect::<Vec<_>>();
         Self { grid }
+    }
+
+    pub fn rows(&self) -> usize {
+        self.grid.len()
+    }
+
+    pub fn cols(&self) -> usize {
+        self.grid[0].len()
     }
 
     pub fn is_valid(&self, x: i64, y: i64) -> bool {
@@ -74,6 +83,88 @@ impl Grid {
 
         None
     }
+
+    pub fn find_all(&self, c: char) -> Vec<(usize, usize)> {
+        let mut res = vec![];
+        for (y, row) in self.grid.iter().enumerate() {
+            for (x, &c2) in row.iter().enumerate() {
+                if c == c2 {
+                    res.push((x, y));
+                }
+            }
+        }
+
+        res
+    }
+
+    pub fn insert_row(&mut self, index: usize, c: char) {
+        let v = vec![c; self.grid[0].len()];
+        self.grid.insert(index, v);
+    }
+
+    pub fn insert_column(&mut self, index: usize, c: char) {
+        for row in self.grid.iter_mut() {
+            row.insert(index, c);
+        }
+    }
+
+    pub fn bfs(&self, starting_point: (usize, usize)) -> Vec<Vec<usize>> {
+        let mut visited = vec![vec![usize::MAX; self.cols()]; self.rows()];
+        let mut queue = VecDeque::from(vec![(0, starting_point)]);
+        while !queue.is_empty() {
+            let (distance, (x, y)) = queue.pop_front().unwrap();
+            if visited[y][x] == usize::MAX {
+                visited[y][x] = distance;
+                if self.is_valid(x as i64 - 1, y as i64) {
+                    queue.push_back((distance + 1, (x - 1, y)));
+                }
+                if self.is_valid(x as i64 + 1, y as i64) {
+                    queue.push_back((distance + 1, (x + 1, y)));
+                }
+                if self.is_valid(x as i64, y as i64 - 1) {
+                    queue.push_back((distance + 1, (x, y - 1)));
+                }
+                if self.is_valid(x as i64, y as i64 + 1) {
+                    queue.push_back((distance + 1, (x, y + 1)));
+                }
+            }
+        }
+
+        visited
+    }
+}
+
+impl std::fmt::Display for Grid {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for row in self.grid.iter() {
+            for c in row.iter() {
+                write!(f, "{}", c)?;
+            }
+            writeln!(f)?;
+        }
+
+        Ok(())
+    }
+}
+
+pub fn min<T: PartialOrd>(lhs: T, rhs: T) -> T {
+    if lhs < rhs {
+        lhs
+    } else {
+        rhs
+    }
+}
+
+pub fn max<T: PartialOrd>(lhs: T, rhs: T) -> T {
+    if lhs > rhs {
+        lhs
+    } else {
+        rhs
+    }
+}
+
+pub fn within_range(value: i64, start: i64, end: i64) -> bool {
+    value >= min(start, end) && value <= max(start, end)
 }
 
 /// Macro to construct a HashMap
