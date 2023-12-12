@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use aoc2023::{within_range, Grid};
+use aoc2023::{max, min, within_range, Grid};
 
 pub struct Expanded {
     columns: Vec<usize>,
@@ -41,13 +41,10 @@ fn solve(expansion_ratio: usize) -> usize {
     let galaxies = grid.find_all('#');
     let mut distances = vec![];
     for (x, y) in galaxies.iter() {
-        // Nope... wouldn't need a bfs here. Manhattan distances would have sufficed.
-        let weights = grid.bfs((*x, *y));
         for (x2, y2) in galaxies.iter() {
             if x == x2 && y == y2 {
                 continue;
             }
-
             let mut num_expanded = 0;
             for row in expanded.rows.iter() {
                 if within_range(*row as i64, *y as i64, *y2 as i64) {
@@ -61,7 +58,10 @@ fn solve(expansion_ratio: usize) -> usize {
                 }
             }
 
-            distances.push(weights[*y2][*x2] + num_expanded * (expansion_ratio - 1));
+            distances.push(
+                max(y2, y) - min(y2, y) + max(x2, x) - min(x2, x)
+                    + num_expanded * (expansion_ratio - 1),
+            );
         }
     }
 
