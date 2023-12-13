@@ -167,6 +167,10 @@ pub fn within_range(value: i64, start: i64, end: i64) -> bool {
     value >= min(start, end) && value <= max(start, end)
 }
 
+pub fn repeat<T: Clone>(data: Vec<T>, times: usize) -> Vec<T> {
+    (0..times).flat_map(|_| data.clone()).collect()
+}
+
 /// Macro to construct a HashMap
 #[macro_export]
 macro_rules! map {
