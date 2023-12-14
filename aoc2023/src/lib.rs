@@ -38,7 +38,7 @@ pub fn lcm(a: u64, b: u64) -> u64 {
     a * b / gcd(a, b)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Grid {
     grid: Vec<Vec<char>>,
 }
@@ -47,6 +47,14 @@ impl Grid {
     pub fn from_input() -> Self {
         let grid = read_input_lines()
             .iter()
+            .map(|l| l.chars().collect::<Vec<_>>())
+            .collect::<Vec<_>>();
+        Self { grid }
+    }
+
+    pub fn from_raw(s: &str) -> Self {
+        let grid = s
+            .lines()
             .map(|l| l.chars().collect::<Vec<_>>())
             .collect::<Vec<_>>();
         Self { grid }
@@ -131,6 +139,17 @@ impl Grid {
         }
 
         visited
+    }
+
+    pub fn transpose(&self) -> Self {
+        let mut grid = vec![vec!['.'; self.rows()]; self.cols()];
+        for (y, row) in self.grid.iter().enumerate() {
+            for (x, &c) in row.iter().enumerate() {
+                grid[x][y] = c;
+            }
+        }
+
+        Self { grid }
     }
 }
 
