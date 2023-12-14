@@ -151,6 +151,28 @@ impl Grid {
 
         Self { grid }
     }
+
+    pub fn rotate_left(&self) -> Self {
+        let mut grid = vec![vec!['.'; self.rows()]; self.cols()];
+        for (y, row) in self.grid.iter().enumerate() {
+            for (x, &c) in row.iter().enumerate() {
+                grid[self.rows() - x - 1][y] = c;
+            }
+        }
+
+        Self { grid }
+    }
+
+    pub fn rotate_right(&self) -> Self {
+        let mut grid = vec![vec!['.'; self.rows()]; self.cols()];
+        for (y, row) in self.grid.iter().enumerate() {
+            for (x, &c) in row.iter().enumerate() {
+                grid[x][self.cols() - y - 1] = c;
+            }
+        }
+
+        Self { grid }
+    }
 }
 
 impl std::fmt::Display for Grid {
