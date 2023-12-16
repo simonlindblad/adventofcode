@@ -60,6 +60,11 @@ impl Grid {
         Self { grid }
     }
 
+    pub fn from_size(rows: usize, cols: usize, c: char) -> Self {
+        let grid = vec![vec![c; cols]; rows];
+        Self { grid }
+    }
+
     pub fn rows(&self) -> usize {
         self.grid.len()
     }
@@ -185,6 +190,39 @@ impl std::fmt::Display for Grid {
         }
 
         Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Direction {
+    Left,
+    Right,
+    Up,
+    Down,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct Coordinate {
+    pub x: i64,
+    pub y: i64,
+}
+
+impl Coordinate {
+    pub fn new(x: i64, y: i64) -> Self {
+        Self { x, y }
+    }
+
+    pub fn navigate(&self, direction: &Direction, max_x: i64, max_y: i64) -> Option<Self> {
+        match (self.x, self.y, direction) {
+            (0, _, Direction::Left) => None,
+            (_, 0, Direction::Up) => None,
+            (_, y, Direction::Down) if y == max_y => None,
+            (x, _, Direction::Right) if x == max_x => None,
+            (x, y, Direction::Left) => Some(Self { x: x - 1, y }),
+            (x, y, Direction::Up) => Some(Self { x, y: y - 1 }),
+            (x, y, Direction::Down) => Some(Self { x, y: y + 1 }),
+            (x, y, Direction::Right) => Some(Self { x: x + 1, y }),
+        }
     }
 }
 
