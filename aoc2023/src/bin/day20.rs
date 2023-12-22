@@ -75,19 +75,51 @@ impl Graph {
 
     fn press_button(&mut self) -> (usize, usize) {
         let (mut low_pulses, mut high_pulses) = (0, 0);
-        let mut queue = VecDeque::from(vec![(Pulse::Low, self.name_to_index["button"])]);
+        let mut queue = VecDeque::from(vec![(0, Pulse::Low, self.name_to_index["button"])]);
 
-        while let Some((pulse, index)) = queue.pop_front() {
+        while let Some((origin, pulse, index)) = queue.pop_front() {
+            if pulse == Pulse::High && index == 15 {
+                println!("Sent high to {} from {}", index, origin);
+                println!("Last sent: {:?}", self.last_sent[origin]);
+            }
             let (output_pulse, outputs) = self.send(index, pulse);
             match output_pulse {
                 Pulse::High => high_pulses += outputs.len(),
                 Pulse::Low => low_pulses += outputs.len(),
             };
 
-            queue.extend(outputs.into_iter().map(|i| (output_pulse, i)));
+            queue.extend(outputs.into_iter().map(|i| (index, output_pulse, i)));
         }
 
         (low_pulses, high_pulses)
+    }
+
+    fn press_button_until_rx(&mut self) -> u64 {
+        // We know that there's only one parent from the graphviz... "hp" that's a conjuction,
+        // and we'll just need to detect when all of its inputs are high.
+        let rx_parent = self.inputs[&self.name_to_index["rx"]][0];
+        let mut rx_parent_cycles = HashMap::<usize, u64>::new();
+        let mut presses = 0;
+        while rx_parent_cycles.len() != self.inputs[&rx_parent].len() {
+            presses += 1;
+            let mut queue = VecDeque::from(vec![(0, Pulse::Low, self.name_to_index["button"])]);
+
+            while let Some((origin, pulse, index)) = queue.pop_front() {
+                if pulse == Pulse::High && index == rx_parent {
+                    rx_parent_cycles.insert(origin, presses);
+                }
+                let (output_pulse, outputs) = self.send(index, pulse);
+                queue.extend(outputs.into_iter().map(|i| (index, output_pulse, i)));
+            }
+        }
+
+        // We have all the cycles, now we find the least common multiple that should be when
+        // all of them are high
+        rx_parent_cycles
+            .values()
+            .copied()
+            .reduce(aoc2023::lcm)
+            .unwrap()
     }
 }
 
@@ -156,13 +188,9 @@ fn part1() {
     }
     println!("Part 1: {}", low * high);
 
-    //let mut graph = parse();
-    //let mut presses = 0;
-    //while graph.last_sent[graph.name_to_index["rx"]] != Some(Pulse::Low) {
-    //    graph.press_button();
-    //    presses += 1;
-    //}
-    //println!("Part 2: {}", presses);
+    let mut graph = parse();
+    let total_presses = graph.press_button_until_rx();
+    println!("Part 2: {}", total_presses);
 }
 
 fn main() {

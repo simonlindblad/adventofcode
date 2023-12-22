@@ -1,0 +1,119 @@
+digraph D {
+    sh [shape=circle]
+    br [shape=circle]
+    bz [shape=circle]
+    cc [shape=circle]
+    ck [shape=circle]
+    cr [shape=circle]
+    cz [shape=circle]
+    dj [shape=circle]
+    dk [shape=circle]
+    dl [shape=circle]
+    fc [shape=circle]
+    fh [shape=circle]
+    fm [shape=circle]
+    gd [shape=circle]
+    gf [shape=circle]
+    gq [shape=circle]
+    gr [shape=circle]
+    hd [shape=circle]
+    hs [shape=circle]
+    jh [shape=circle]
+    jm [shape=circle]
+    kb [shape=circle]
+    kj [shape=circle]
+    kk [shape=circle]
+    kr [shape=circle]
+    lr [shape=circle]
+    mz [shape=circle]
+    nf [shape=circle]
+    nt [shape=circle]
+    pd [shape=circle]
+    ph [shape=circle]
+    pj [shape=circle]
+    qx [shape=circle]
+    rd [shape=circle]
+    rg [shape=circle]
+    rq [shape=circle]
+    rv [shape=circle]
+    sb [shape=circle]
+    tb [shape=circle]
+    tk [shape=circle]
+    tp [shape=circle]
+    tt [shape=circle]
+    vv [shape=circle]
+    xg [shape=circle]
+    xs [shape=circle]
+    xt [shape=circle]
+    zn [shape=circle]
+    zt [shape=circle]
+    sr [shape=box]
+    gk [shape=box]
+    gx [shape=box]
+    hp [shape=box]
+    rf [shape=box]
+    sn [shape=box]
+    tf [shape=box]
+    vq [shape=box]
+    xr [shape=box]
+    broadcaster [shape=egg]
+
+    sr -> hp
+    sh -> lr
+    jm -> { pj, tf }
+    xr -> { sn, sb, hd }
+    xt -> { cc, tf }
+    br -> fm
+    hd -> { tp, xr }
+    rg -> { xr, dl }
+    sb -> jh
+    xg -> rd
+    nf -> { gx, gd }
+    pj -> { tf, dk }
+    gq -> jm
+    vv -> br
+    gd -> gx
+    hp -> rx
+    cz -> { gk, vv }
+    gk -> { vq, vv, br, zt, dj, xg }
+    gr -> { zn, xr }
+    tf -> { cc, rf, kk, xt, gq }
+    dk -> { tb, tf }
+    nt -> { ph, gk }
+    fh -> { xr, xs }
+    jh -> { xr, bz }
+    pd -> { gk, kb }
+    kb -> { nt, gk }
+    fm -> { dj, gk }
+    kr -> tf
+    tp -> { xr, rq }
+    lr -> { mz, gx }
+    sn -> hp
+    mz -> rv
+    kj -> { gx, hs }
+    rv -> { gx, ck }
+    cr -> { kk, tf }
+    rq -> { gr, xr }
+    kk -> fc
+    ck -> { gx, nf }
+    broadcaster -> { hd, xt, kj, zt }
+    tt -> gf
+    tb -> { kr, tf }
+    gf -> { gx, sh }
+    cc -> cr
+    fc -> { qx, tf }
+    dl -> xr
+    gx -> { mz, sh, tt, sr, kj, tk }
+    dj -> pd
+    zt -> { gk, xg }
+    rf -> hp
+    vq -> hp
+    xs -> { sb, xr }
+    qx -> { tf, gq }
+    bz -> { xr, rg }
+    ph -> gk
+    hs -> { gx, tk }
+    tk -> tt
+    rd -> { gk, cz }
+    zn -> { fh, xr }
+}
